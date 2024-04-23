@@ -20,6 +20,11 @@ def download_youtube_audio(destination, csv_file):
             print(row['title'])
             print(row['album'])
 
+            # delete old file if exists
+            if os.path.exists(destination + "/" + row['title'] + ".mp3"):
+                os.remove(destination + "/" + row['title'] + ".mp3")
+                print("Deleted old file")
+
             yt = YouTube(row['yt_url'])
 
             # extract only audio 
