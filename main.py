@@ -1,5 +1,5 @@
 # importing packages
-import os, csv, time
+import os, csv, time, sys
 from pytube import YouTube 
 from moviepy.editor import AudioFileClip
 import mutagen
@@ -27,13 +27,13 @@ def download_youtube_audio(destination, csv_file):
 
             yt = YouTube(row['yt_url'])
 
-            # extract only audio 
-            video = yt.streams.filter(only_audio=True).first() 
+            # extract only audio
+            video = yt.streams.filter(only_audio=True).first()
 
             temp_file = video.download()
             audio_clip = AudioFileClip(temp_file)
             audio_clip.write_audiofile(destination + "/" + row['title'] + ".mp3", codec="libmp3lame")
-            
+
             while os.path.exists(temp_file):
                 try:
                     os.remove(temp_file)
@@ -41,7 +41,7 @@ def download_youtube_audio(destination, csv_file):
                     time.sleep(1)  # 他のプロセスが解放するまで待つ
                     print("sleeping...")
 
-            # result of success 
+            # result of success
             print(yt.title + " has been successfully downloaded.")
 
             # Update mp3 Metadata
@@ -56,7 +56,17 @@ def download_youtube_audio(destination, csv_file):
 
 
 if __name__ == "__main__":
-    destination = "C:/tmp/tmp_20240420_205830/mp3"
-    csv_file = "kumon_1.csv"
-    # csv_file = "kumon_2-5.csv"
+    # コマンドライン引数から出力先とCSVファイルを取得
+    if len(sys.argv) < 3:
+        print("Usage: python main.py <destination_directory> <csv_file>")
+        print("Example: python main.py ./output kumon_1.csv")
+        sys.exit(1)
+    
+    destination = sys.argv[1]
+    csv_file = sys.argv[2]
+    
+    # 出力ディレクトリが存在しない場合は作成
+    if not os.path.exists(destination):
+        os.makedirs(destination)
+    
     download_youtube_audio(destination, csv_file)
